@@ -42,6 +42,13 @@ class WeatherService:
         self._history = history
         self._settings = settings
 
+    async def search_locations(self, query: str, count: int) -> list[ResolvedLocation]:
+        """Return candidate locations for search typeahead (never raises on empty)."""
+        cleaned = query.strip()
+        if not cleaned:
+            return []
+        return await self._client.geocode_search(cleaned, count)
+
     async def get_weather(
         self,
         units: Units,

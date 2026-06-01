@@ -118,6 +118,49 @@ async def test_breaker_open_fast_fails(make_harness: object) -> None:
         assert forecast_route.call_count == 1
 
 
+async def test_geocode_returns_candidates(harness: Harness) -> None:
+    payload = {
+        "results": [
+            {
+                "name": "London",
+                "latitude": 51.5074,
+                "longitude": -0.1278,
+                "country": "United Kingdom",
+                "country_code": "GB",
+                "admin1": "England",
+                "timezone": "Europe/London",
+            },
+            {
+                "name": "London",
+                "latitude": 42.9834,
+                "longitude": -81.233,
+                "country": "Canada",
+                "country_code": "CA",
+                "admin1": "Ontario",
+                "timezone": "America/Toronto",
+            },
+        ]
+    }
+    with respx.mock(assert_all_called=False) as router:
+        router.get(url__startswith=GEO_URL).mock(return_value=httpx.Response(200, json=payload))
+        response = await harness.client.get("/geocode", params={"q": "Lond", "count": 5})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body) == 2
+    assert body[0]["country_code"] == "GB"
+    assert body[1]["country_code"] == "CA"
+
+
+async def test_geocode_no_matches_returns_empty(harness: Harness) -> None:
+    with respx.mock(assert_all_called=False) as router:
+        router.get(url__startswith=GEO_URL).mock(return_value=httpx.Response(200, json={}))
+        response = await harness.client.get("/geocode", params={"q": "zzzzzz"})
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
 async def test_weather_by_coordinates_skips_geocoding(harness: Harness) -> None:
     with respx.mock(assert_all_called=False) as router:
         geo_route = router.get(url__startswith=GEO_URL).mock(

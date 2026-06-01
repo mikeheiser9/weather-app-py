@@ -50,7 +50,7 @@ services:
         # NEXT_PUBLIC_* values are inlined at build time. The browser reaches
         # the backend on the host-published port, not the compose network name.
         NEXT_PUBLIC_API_BASE_URL: "http://localhost:8000"
-        NEXT_PUBLIC_DEFAULT_CITY: "London"
+        NEXT_PUBLIC_DEFAULT_CITY: "Tel Aviv"
     restart: unless-stopped
     ports:
       - "3000:3000"

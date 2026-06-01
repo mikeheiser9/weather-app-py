@@ -100,6 +100,22 @@ class OpenMeteoClient:
             raise CityNotFoundError(f"No matching city was found for '{city}'.")
         return normalize_location(results[0])
 
+    async def geocode_search(self, query: str, count: int) -> list[ResolvedLocation]:
+        """Return up to ``count`` candidate locations for a partial query.
+
+        Used for search typeahead. Unlike ``geocode`` this never raises on an
+        empty result set; it simply returns an empty list.
+        """
+        params = {
+            "name": query,
+            "count": count,
+            "language": "en",
+            "format": "json",
+        }
+        payload = await self._get_json("geocoding", self._settings.geocoding_base_url, params)
+        results = payload.get("results") or []
+        return [normalize_location(result) for result in results]
+
     async def forecast(self, latitude: float, longitude: float, units: Units) -> dict[str, Any]:
         """Fetch the current, hourly, and daily forecast for coordinates."""
         params: dict[str, Any] = {

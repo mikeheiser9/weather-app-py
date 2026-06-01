@@ -14,7 +14,7 @@ import { useWeatherApp } from "@/hooks/useWeatherApp";
 
 export function Dashboard(): React.ReactElement {
   const app = useWeatherApp();
-  const health = useHealth();
+  const { health, loading: healthLoading } = useHealth();
   const { theme, toggleTheme } = useTheme();
   const busy = app.status === "loading";
 
@@ -22,10 +22,12 @@ export function Dashboard(): React.ReactElement {
     <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1500px] flex-row gap-5 p-5 max-ipad:flex-col max-small:p-3">
       <Sidebar
         health={health}
+        healthLoading={healthLoading}
         busy={busy}
         favorites={app.favorites}
         history={app.history}
         onSearch={app.search}
+        onSelectLocation={(loc) => app.searchByCoords(loc.latitude, loc.longitude)}
         onUseLocation={app.useMyLocation}
         onSelectFavorite={(fav) => app.searchByCoords(fav.location.latitude, fav.location.longitude)}
         onRemoveFavorite={app.removeFavorite}
@@ -34,7 +36,7 @@ export function Dashboard(): React.ReactElement {
         }
       />
 
-      <main className="flex flex-1 flex-col gap-5">
+      <main className="flex min-w-0 flex-1 flex-col gap-5">
         <div className="flex flex-row items-center justify-end gap-3">
           <UnitToggle units={app.units} onToggle={app.toggleUnits} />
           <ThemeToggle theme={theme} onToggle={toggleTheme} />

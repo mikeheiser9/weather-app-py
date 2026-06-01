@@ -8,7 +8,7 @@ from fastapi import APIRouter, Query
 
 from app.dependencies import OptionalClientIdDep, WeatherServiceDep
 from app.models.common import ErrorResponse, Units
-from app.models.weather import WeatherResponse
+from app.models.weather import ResolvedLocation, WeatherResponse
 
 router = APIRouter(tags=["weather"])
 
@@ -44,3 +44,17 @@ async def get_weather(
         units=units,
         client_id=client_id,
     )
+
+
+@router.get(
+    "/geocode",
+    response_model=list[ResolvedLocation],
+    responses={502: {"model": ErrorResponse}, 503: {"model": ErrorResponse}},
+)
+async def geocode(
+    service: WeatherServiceDep,
+    q: Annotated[str, Query(min_length=1, description="Partial city name for typeahead.")],
+    count: Annotated[int, Query(ge=1, le=10, description="Max candidate locations.")] = 5,
+) -> list[ResolvedLocation]:
+    """Return candidate locations for search typeahead (empty list when none match)."""
+    return await service.search_locations(q, count)

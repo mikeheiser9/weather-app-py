@@ -84,6 +84,7 @@ Notes:
 | --- | --- | --- |
 | GET | `/weather?city={city}&units={metric\|imperial}` | Resolve a city, return normalized weather + air quality, record history. |
 | GET | `/weather?lat={lat}&lon={lon}&units={...}` | Same, by coordinates (used by browser geolocation); skips geocoding. |
+| GET | `/geocode?q={query}&count={1-10}` | Candidate locations for search typeahead. Returns a list (empty when none match). |
 | GET | `/health` | Per-dependency health (Redis, Mongo, upstream) and breaker states. 200 healthy, 503 when a critical dependency is down. |
 | GET | `/favorites` | List saved cities for the client. |
 | POST | `/favorites` | Save a city (idempotent per resolved location). |
@@ -178,7 +179,7 @@ Frontend (Next.js, inlined at build time):
 | Variable | Default | Description |
 | --- | --- | --- |
 | `NEXT_PUBLIC_API_BASE_URL` | `http://localhost:8000` | Backend base URL the browser calls. |
-| `NEXT_PUBLIC_DEFAULT_CITY` | `London` | City loaded when geolocation is denied or unavailable. |
+| `NEXT_PUBLIC_DEFAULT_CITY` | `Tel Aviv` | City loaded when geolocation is denied or unavailable. |
 
 ## Design decisions
 
@@ -275,9 +276,13 @@ A dark editorial dashboard built with **Next.js (App Router) + TypeScript +
 Tailwind CSS v4**. It renders current conditions over a full-bleed,
 weather-driven background, a 7-day strip, a 24-hour strip, minimal amber/gold
 trend charts (temperature and precipitation), an air-quality panel, a unit
-toggle (°C/°F), a light/dark theme toggle (dark default), city search, browser
-geolocation, recent searches, and favorites. An honest service-status dot polls
-`/health`.
+toggle (°C/°F), a light/dark theme toggle (dark default), a debounced
+type-ahead city search (backed by `/geocode`, with keyboard navigation),
+recent searches, and favorites. An honest service-status dot polls `/health`.
+
+On first load it requests browser geolocation and shows weather for the current
+location, falling back to `NEXT_PUBLIC_DEFAULT_CITY` (Tel Aviv) when permission
+is denied or unavailable.
 
 Stack and conventions:
 

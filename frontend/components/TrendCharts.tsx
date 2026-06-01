@@ -36,7 +36,7 @@ function ChartCard({
   children: React.ReactElement;
 }): React.ReactElement {
   return (
-    <div className="frost flex flex-1 flex-col gap-3 rounded-[var(--radius-panel)] p-5">
+    <div className="frost flex min-w-0 flex-1 flex-col gap-3 rounded-[var(--radius-panel)] p-5">
       <div className="flex flex-row items-baseline justify-between">
         <span className="tracked-label">{title}</span>
         <span className="text-[0.7rem] text-[var(--color-text-faint)]">{unit}</span>

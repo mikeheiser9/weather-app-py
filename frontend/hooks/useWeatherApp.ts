@@ -14,7 +14,7 @@ import {
 import type { Favorite, HistoryItem, Units, WeatherResponse } from "@/lib/types";
 
 const UNITS_KEY = "wp-units";
-const DEFAULT_CITY = process.env.NEXT_PUBLIC_DEFAULT_CITY ?? "London";
+const DEFAULT_CITY = process.env.NEXT_PUBLIC_DEFAULT_CITY ?? "Tel Aviv";
 
 export type AppStatus = "idle" | "loading" | "ready" | "error";
 

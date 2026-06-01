@@ -5,14 +5,16 @@ import { Footer } from "@/components/Footer";
 import { HealthDot } from "@/components/HealthDot";
 import { HistoryList } from "@/components/HistoryList";
 import { SearchBar } from "@/components/SearchBar";
-import type { Favorite, HealthResponse, HistoryItem } from "@/lib/types";
+import type { Favorite, HealthResponse, HistoryItem, ResolvedLocation } from "@/lib/types";
 
 interface SidebarProps {
   health: HealthResponse | null;
+  healthLoading: boolean;
   busy: boolean;
   favorites: Favorite[];
   history: HistoryItem[];
   onSearch: (city: string) => void;
+  onSelectLocation: (location: ResolvedLocation) => void;
   onUseLocation: () => void;
   onSelectFavorite: (favorite: Favorite) => void;
   onRemoveFavorite: (id: string) => void;
@@ -21,10 +23,12 @@ interface SidebarProps {
 
 export function Sidebar({
   health,
+  healthLoading,
   busy,
   favorites,
   history,
   onSearch,
+  onSelectLocation,
   onUseLocation,
   onSelectFavorite,
   onRemoveFavorite,
@@ -38,10 +42,15 @@ export function Sidebar({
             Weather<span className="text-[var(--color-amber)]">Proxy</span>
           </h1>
         </div>
-        <HealthDot health={health} />
+        <HealthDot health={health} loading={healthLoading} />
       </div>
 
-      <SearchBar onSearch={onSearch} onUseLocation={onUseLocation} busy={busy} />
+      <SearchBar
+        onSearch={onSearch}
+        onSelectLocation={onSelectLocation}
+        onUseLocation={onUseLocation}
+        busy={busy}
+      />
 
       <FavoritesList
         favorites={favorites}
