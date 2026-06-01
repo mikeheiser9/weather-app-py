@@ -36,6 +36,7 @@ async def test_weather_happy_path(harness: Harness) -> None:
     assert body["location"]["country_code"] == "GB"
     assert body["current"]["temperature"] == 15.2
     assert body["condition_category"] == "cloudy"
+    assert body["current"]["description"] == "Overcast"
     assert body["units"] == "metric"
     assert body["cache"] is False
     assert len(body["hourly"]) == 24

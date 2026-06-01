@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ConditionGlyph, StarIcon } from "@/components/icons";
 import { formatTemp, locationLabel } from "@/lib/format";
 import type { Favorite, WeatherResponse } from "@/lib/types";
-import { categoryBackground, categoryGradient, categoryLabel } from "@/lib/wmo";
+import { categoryBackground, categoryGradient } from "@/lib/wmo";
 
 interface CurrentHeroProps {
   weather: WeatherResponse;
@@ -92,7 +92,7 @@ export function CurrentHero({
           </div>
           <div className="mt-2 flex flex-row items-center gap-2 text-[#f4f1ea]/85">
             <ConditionGlyph category={category} size={20} />
-            <span className="text-[1rem]">{categoryLabel(category)}</span>
+            <span className="text-[1rem]">{weather.current.description}</span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-0.5 text-right max-small:items-start max-small:text-left">

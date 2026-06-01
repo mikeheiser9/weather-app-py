@@ -30,6 +30,7 @@ export interface CurrentConditions {
   precipitation: number | null;
   weather_code: number | null;
   condition_category: ConditionCategory;
+  description: string;
   wind_speed: number | null;
   wind_direction: number | null;
 }

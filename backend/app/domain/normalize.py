@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.domain.units import unit_labels
-from app.domain.wmo import category_for_code
+from app.domain.wmo import category_for_code, description_for_code
 from app.models.common import Units
 from app.models.weather import (
     AirQuality,
@@ -65,6 +65,7 @@ def _normalize_current(current: dict[str, Any]) -> CurrentConditions:
         precipitation=current.get("precipitation"),
         weather_code=code,
         condition_category=category_for_code(code),
+        description=description_for_code(code),
         wind_speed=current.get("wind_speed_10m"),
         wind_direction=current.get("wind_direction_10m"),
     )

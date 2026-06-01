@@ -35,6 +35,7 @@ class CurrentConditions(BaseModel):
     precipitation: float | None = None
     weather_code: int | None = None
     condition_category: ConditionCategory
+    description: str
     wind_speed: float | None = None
     wind_direction: int | None = None
 
