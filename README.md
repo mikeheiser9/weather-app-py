@@ -83,7 +83,7 @@ Notes:
 | Method | Path | Description |
 | --- | --- | --- |
 | GET | `/weather?city={city}&units={metric\|imperial}` | Resolve a city, return normalized weather + air quality, record history. |
-| GET | `/weather?lat={lat}&lon={lon}&units={...}` | Same, by coordinates (used by browser geolocation); skips geocoding. |
+| GET | `/weather?lat={lat}&lon={lon}&name={label}&units={...}` | Same, by coordinates (browser geolocation, or a picked search result); skips geocoding. Optional `name` labels the location and history entry. |
 | GET | `/geocode?q={query}&count={1-10}` | Candidate locations for search typeahead. Returns a list (empty when none match). |
 | GET | `/health` | Per-dependency health (Redis, Mongo, upstream) and breaker states. 200 healthy, 503 when a critical dependency is down. |
 | GET | `/favorites` | List saved cities for the client. |
@@ -202,7 +202,10 @@ Frontend (Next.js, inlined at build time):
   exactly what matched (for example London GB vs London CA). `/weather` also
   accepts `lat`/`lon` directly so browser geolocation works without a keyless
   reverse-geocoder (Open-Meteo offers none); that path skips geocoding and
-  labels the location "Current location".
+  labels the location "Current location" unless an optional `name` is supplied
+  (the dashboard passes it when a search result, favorite, or history item is
+  picked, so the exact place is preserved without re-geocoding an ambiguous
+  name such as Paris FR vs Paris TX).
 - **Single-source WMO mapping.** The weather-code to condition-category map
   lives in exactly one place (`app/domain/wmo.py`) and is surfaced in the
   response so the frontend selects its background from the same category rather
@@ -230,8 +233,9 @@ Frontend (Next.js, inlined at build time):
 - Mongo and the upstream are treated as critical for `/health`; Redis is
   non-critical and only marks the service `degraded`.
 - Browser geolocation queries `/weather` by coordinates. Because no keyless
-  reverse-geocoder is available, that result is labeled "Current location"
-  rather than a resolved city name.
+  reverse-geocoder is available, a pure geolocation result is labeled "Current
+  location". When a place is chosen from search/favorites/history the known
+  name is passed through, so it is labeled and stored correctly.
 
 ## Testing and coverage
 
@@ -267,6 +271,8 @@ uv run mypy .
 - Distributed tracing (OpenTelemetry) and a Prometheus `/metrics` endpoint.
 - Request coalescing / single-flight to avoid cache stampedes on popular cities.
 - ETags / conditional requests for client-side caching.
+- Frontend tests (React Testing Library for components, Playwright for an
+  end-to-end smoke flow) and a frontend coverage gate in CI.
 - Kubernetes manifests and a Helm chart alongside compose.
 - Internationalization of labels and condition descriptions.
 

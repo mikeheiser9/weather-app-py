@@ -218,3 +218,9 @@ __marimo__/
 .streamlit/secrets.toml
 
 .cursor/
+
+# The Python packaging patterns above (notably `lib/`) are unanchored and would
+# otherwise swallow the frontend's TypeScript source. Keep frontend sources
+# tracked. Negations must come after the patterns they override.
+!frontend/lib/
+!frontend/lib/**
