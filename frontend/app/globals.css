@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/*
+  Tailwind v4 CSS-based configuration. There is no tailwind.config.js.
+  Dark mode is the default. All colors are CSS variables referenced through
+  theme tokens. Only the project's custom max-width breakpoints exist.
+*/
+
+@theme {
+  /* Clear Tailwind's default min-width breakpoints so only ours exist */
+  --breakpoint-*: initial;
+
+  /* Custom breakpoints, treated as max-width via the max-* variant */
+  --breakpoint-x-large: 1350px;
+  --breakpoint-large: 1280px;
+  --breakpoint-medium: 1250px;
+  --breakpoint-tl: 1169px;
+  --breakpoint-tablet-lg: 1075px;
+  --breakpoint-ipad-up: 996px;
+  --breakpoint-ipad: 821px;
+  --breakpoint-ipad-under: 767px;
+  --breakpoint-over-small: 665px;
+  --breakpoint-small: 550px;
+  --breakpoint-iphone: 450px;
+  --breakpoint-iphone-sm: 390px;
+  --breakpoint-xx-small: 360px;
+
+  /* Color palette as CSS variables (dark editorial) */
+  --color-ink: #0a0a0b;
+  --color-ink-2: #111114;
+  --color-panel: rgba(22, 22, 26, 0.55);
+  --color-panel-solid: #16161a;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
+  --color-text: #f4f1ea;
+  --color-text-dim: rgba(244, 241, 234, 0.62);
+  --color-text-faint: rgba(244, 241, 234, 0.4);
+  --color-amber: #f5b13d;
+  --color-amber-soft: #e8c98a;
+  --color-rose: #f0698a;
+  --color-scrim: rgba(8, 8, 10, 0.62);
+
+  /* Radii */
+  --radius-panel: 22px;
+  --radius-card: 16px;
+
+  /* Type */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Light theme overrides applied when the root carries data-theme="light" */
+:root[data-theme="light"] {
+  --color-ink: #f3f1ec;
+  --color-ink-2: #e9e6df;
+  --color-panel: rgba(255, 255, 255, 0.66);
+  --color-panel-solid: #ffffff;
+  --color-border: rgba(17, 17, 20, 0.12);
+  --color-border-strong: rgba(17, 17, 20, 0.2);
+  --color-text: #15151a;
+  --color-text-dim: rgba(21, 21, 26, 0.62);
+  --color-text-faint: rgba(21, 21, 26, 0.42);
+  --color-scrim: rgba(245, 243, 238, 0.55);
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100%;
+  background-color: var(--color-ink);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle film grain over the near-black background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+}
+
+.frost {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.tracked-label {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.68rem;
+  color: var(--color-text-dim);
+}

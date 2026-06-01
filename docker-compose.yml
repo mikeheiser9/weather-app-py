@@ -1,0 +1,62 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: prod
+      LOG_LEVEL: INFO
+      REDIS_URL: redis://redis:6379/0
+      MONGO_URL: mongodb://mongo:27017
+      MONGO_DB_NAME: weather
+      CACHE_TTL_SECONDS: "600"
+      CORS_ORIGINS: "http://localhost:3000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # NEXT_PUBLIC_* values are inlined at build time. The browser reaches
+        # the backend on the host-published port, not the compose network name.
+        NEXT_PUBLIC_API_BASE_URL: "http://localhost:8000"
+        NEXT_PUBLIC_DEFAULT_CITY: "London"
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  redis-data:
+  mongo-data:
