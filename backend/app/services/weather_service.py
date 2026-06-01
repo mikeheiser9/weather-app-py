@@ -56,8 +56,9 @@ class WeatherService:
         city: str | None = None,
         latitude: float | None = None,
         longitude: float | None = None,
+        name: str | None = None,
     ) -> WeatherResponse:
-        location = await self._resolve_location(city, latitude, longitude)
+        location = await self._resolve_location(city, latitude, longitude, name)
         query_label = city if city else location.name
         cache_key = build_weather_cache_key(
             location.latitude,
@@ -95,12 +96,13 @@ class WeatherService:
         city: str | None,
         latitude: float | None,
         longitude: float | None,
+        name: str | None = None,
     ) -> ResolvedLocation:
         if city:
             return await self._client.geocode(city)
         if latitude is not None and longitude is not None:
             return ResolvedLocation(
-                name="Current location",
+                name=name.strip() if name and name.strip() else "Current location",
                 latitude=latitude,
                 longitude=longitude,
             )

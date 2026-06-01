@@ -179,6 +179,22 @@ async def test_weather_by_coordinates_skips_geocoding(harness: Harness) -> None:
     assert geo_route.call_count == 0
 
 
+async def test_weather_by_coordinates_uses_provided_name(harness: Harness) -> None:
+    with respx.mock(assert_all_called=False) as router:
+        router.get(url__startswith=FORECAST_URL).mock(
+            return_value=httpx.Response(200, json=forecast_payload())
+        )
+        router.get(url__startswith=AQ_URL).mock(
+            return_value=httpx.Response(200, json=aqi_payload())
+        )
+        response = await harness.client.get(
+            "/weather", params={"lat": 48.85, "lon": 2.35, "name": "Paris"}
+        )
+
+    assert response.status_code == 200
+    assert response.json()["location"]["name"] == "Paris"
+
+
 async def test_weather_requires_city_or_coordinates(harness: Harness) -> None:
     response = await harness.client.get("/weather")
     assert response.status_code == 400

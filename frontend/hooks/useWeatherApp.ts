@@ -11,7 +11,7 @@ import {
   fetchHistory,
   fetchWeather,
 } from "@/lib/api";
-import type { Favorite, HistoryItem, Units, WeatherResponse } from "@/lib/types";
+import type { Favorite, HistoryItem, ResolvedLocation, Units, WeatherResponse } from "@/lib/types";
 
 const UNITS_KEY = "wp-units";
 const DEFAULT_CITY = process.env.NEXT_PUBLIC_DEFAULT_CITY ?? "Tel Aviv";
@@ -41,6 +41,7 @@ export interface WeatherApp {
   currentFavorite: Favorite | null;
   search: (city: string) => void;
   searchByCoords: (lat: number, lon: number) => void;
+  searchByLocation: (location: ResolvedLocation) => void;
   useMyLocation: () => void;
   toggleUnits: () => void;
   addFavorite: () => void;
@@ -57,6 +58,7 @@ export function useWeatherApp(): WeatherApp {
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
   const lastQuery = useRef<WeatherQuery | null>(null);
+  const lastKnownLocation = useRef<ResolvedLocation | null>(null);
 
   const refreshFavorites = useCallback(async (): Promise<void> => {
     try {
@@ -75,13 +77,16 @@ export function useWeatherApp(): WeatherApp {
   }, []);
 
   const runQuery = useCallback(
-    async (query: WeatherQuery): Promise<void> => {
+    async (query: WeatherQuery, knownLocation: ResolvedLocation | null = null): Promise<void> => {
       lastQuery.current = query;
+      lastKnownLocation.current = knownLocation;
       setStatus("loading");
       setError(null);
       try {
         const data = await fetchWeather(query);
-        setWeather(data);
+        // When a place was picked from search, favorites, or history, we already
+        // know its full label; keep it rather than the backend's coordinate stub.
+        setWeather(knownLocation ? { ...data, location: knownLocation } : data);
         setStatus("ready");
         void refreshHistory();
       } catch (e) {
@@ -109,6 +114,16 @@ export function useWeatherApp(): WeatherApp {
     [runQuery, units],
   );
 
+  const searchByLocation = useCallback(
+    (location: ResolvedLocation): void => {
+      void runQuery(
+        { lat: location.latitude, lon: location.longitude, name: location.name, units },
+        location,
+      );
+    },
+    [runQuery, units],
+  );
+
   const useMyLocation = useCallback((): void => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       search(DEFAULT_CITY);
@@ -126,7 +141,7 @@ export function useWeatherApp(): WeatherApp {
       const next: Units = prev === "metric" ? "imperial" : "metric";
       window.localStorage.setItem(UNITS_KEY, next);
       if (lastQuery.current) {
-        void runQuery({ ...lastQuery.current, units: next });
+        void runQuery({ ...lastQuery.current, units: next }, lastKnownLocation.current);
       }
       return next;
     });
@@ -163,7 +178,7 @@ export function useWeatherApp(): WeatherApp {
 
   const retry = useCallback((): void => {
     if (lastQuery.current) {
-      void runQuery(lastQuery.current);
+      void runQuery(lastQuery.current, lastKnownLocation.current);
     } else {
       search(DEFAULT_CITY);
     }
@@ -208,6 +223,7 @@ export function useWeatherApp(): WeatherApp {
     currentFavorite,
     search,
     searchByCoords,
+    searchByLocation,
     useMyLocation,
     toggleUnits,
     addFavorite,

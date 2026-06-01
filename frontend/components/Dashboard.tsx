@@ -27,13 +27,11 @@ export function Dashboard(): React.ReactElement {
         favorites={app.favorites}
         history={app.history}
         onSearch={app.search}
-        onSelectLocation={(loc) => app.searchByCoords(loc.latitude, loc.longitude)}
+        onSelectLocation={app.searchByLocation}
         onUseLocation={app.useMyLocation}
-        onSelectFavorite={(fav) => app.searchByCoords(fav.location.latitude, fav.location.longitude)}
+        onSelectFavorite={(fav) => app.searchByLocation(fav.location)}
         onRemoveFavorite={app.removeFavorite}
-        onSelectHistory={(item) =>
-          app.searchByCoords(item.location.latitude, item.location.longitude)
-        }
+        onSelectHistory={(item) => app.searchByLocation(item.location)}
       />
 
       <main className="flex min-w-0 flex-1 flex-col gap-5">

@@ -34,6 +34,12 @@ async def get_weather(
     lon: Annotated[
         float | None, Query(ge=-180, le=180, description="Longitude (with lat, for geolocation).")
     ] = None,
+    name: Annotated[
+        str | None,
+        Query(
+            min_length=1, description="Optional label for a coordinate lookup (e.g. a picked city)."
+        ),
+    ] = None,
     units: Units = Units.METRIC,
 ) -> WeatherResponse:
     """Resolve a city (or coordinates), return normalized weather, and record history."""
@@ -41,6 +47,7 @@ async def get_weather(
         city=city,
         latitude=lat,
         longitude=lon,
+        name=name,
         units=units,
         client_id=client_id,
     )
